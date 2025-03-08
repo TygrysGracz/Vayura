@@ -1,50 +1,61 @@
-# Welcome to your Expo app 👋
+# **Vayura - Breathe Smart. Live Clean.**
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## **About the Application**
 
-## Get started
+Vayura is a personal side project I developed to deepen my understanding of APIs and enhance my programming skills on my journey to becoming a software developer.
 
-1. Install dependencies
+The name **Vayura** is inspired by _Vayu_, the Indian god of air, reflecting the app’s focus on air quality and well-being.
 
-   ```bash
-   npm install
-   ```
+As a young adult, I am deeply concerned about the impact of air pollution on our health. Without clean air, maintaining good health is impossible. That’s why I created **Vayura**—an application that provides **real-time air quality data** using the **Open-Meteo API**.
 
-2. Start the app
+Additionally, Vayura suggests **actionable steps** you can take to reduce the effects of poor air quality on your health.
 
-   ```bash
-    npx expo start
-   ```
+## **Getting Started**
 
-In the output, you'll find options to open the app in a
+To run Vayura on your device, follow these steps:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### **1. Clone the Repository**
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Open your terminal and run:
 
-## Get a fresh project
+`git clone https://github.com/tygrysgracz/vayura.git`
 
-When you're ready, run:
+### **2. Navigate to the Project Directory**
 
-```bash
-npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+`cd vayura`
 
-## Learn more
+### **3. Install Dependencies**
 
-To learn more about developing your project with Expo, look at the following resources:
+Using **Yarn** (preferred):
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+`yarn install`
 
-## Join the community
+Or with **npm**:
 
-Join our community of developers creating universal apps.
+`npm install`
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### **4. Start the Application**
+
+Run the following command to start the Expo development server:
+
+Using **Yarn**:
+
+`yarn start`
+
+Or with **npx**:
+
+
+`npx expo start`
+
+Once started, scan the QR code with the **Expo Go** app (available on iOS and Android) to run Vayura on your mobile device.
+
+---
+
+## **Feedback & Support**
+
+I’d love to hear your thoughts! If you encounter any issues or have feedback, feel free to reach out. Enjoy exploring **Vayura** and breathe smarter! 🌿💨
+
+---
+
+Let me know if you’d like any further refinements! 😊

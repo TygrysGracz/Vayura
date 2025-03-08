@@ -32,6 +32,13 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      "expo-location",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Vayura to use your location to provide accurate air quality data."
+        }
       ]
     ],
     "experiments": {
