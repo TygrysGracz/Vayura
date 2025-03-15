@@ -2,32 +2,40 @@ import { View, Text, ScrollView, StyleSheet, Dimensions, Alert, TextInput, Keybo
 import { Button, Card, IconButton, Surface } from 'react-native-paper';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import * as Location from 'expo-location';
 
 export default function Home() {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [address, setAddress] = useState('Detecting location...');
-  const [airQuality, setAirQuality] = useState(null);
+  const [airQuality, setAirQuality] = useState<number | null>(null);
   const [aqiLevel, setAqiLevel] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const getAirQuality = async (latitude, longitude) => {
+  const getAirQuality = async (latitude: number, longitude: number) => {
     try {
       console.log('Fetching air quality for:', latitude, longitude);
-      const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=european_aqi`;
+      const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=european_aqi&timezone=auto`;
       console.log('API URL:', url);
       
       const response = await fetch(url);
       const data = await response.json();
       console.log('API Response:', data);
       
-      const currentHour = new Date().getHours();
-      console.log('Current hour:', currentHour);
-      
-      if (data.hourly && data.hourly.european_aqi) {
-        const currentAQI = data.hourly.european_aqi[currentHour];
+      if (data.hourly && data.hourly.european_aqi && data.hourly.time) {
+        const currentTime = new Date().toISOString();
+        console.log('Current time:', currentTime);
+        
+
+        const timeIndex = data.hourly.time.findIndex((time: string) => time > currentTime);
+        const mostRecentIndex = timeIndex > 0 ? timeIndex - 1 : data.hourly.time.length - 1;
+        
+        const currentAQI = data.hourly.european_aqi[mostRecentIndex];
         console.log('Current AQI:', currentAQI);
+        console.log('Time of measurement:', data.hourly.time[mostRecentIndex]);
+        
         setAirQuality(currentAQI);
         
         if (currentAQI <= 20) setAqiLevel('Very Good');
@@ -39,15 +47,17 @@ export default function Home() {
       } else {
         console.error('Invalid API response structure:', data);
         setAirQuality(null);
+        setAqiLevel('');
       }
       
     } catch (error) {
       console.error('Error fetching air quality:', error);
       setAirQuality(null);
+      setAqiLevel('');
     }
   };
 
-  const getHealthRecommendation = (aqi) => {
+  const getHealthRecommendation = (aqi: number) => {
     if (!aqi) return 'Loading recommendations...';
     
     if (aqi <= 20) {
@@ -65,7 +75,7 @@ export default function Home() {
     }
   };
 
-  const getAqiColor = (aqi) => {
+  const getAqiColor = (aqi: number) => {
     if (!aqi) return '#666';
     if (aqi <= 20) return '#50F0E6';
     if (aqi <= 40) return '#50CCAA';
@@ -75,6 +85,61 @@ export default function Home() {
     return '#7D2181';
   };
 
+  const updateLocation = async (newAddress: string) => {
+    try {
+      if (!newAddress.trim()) return;
+      
+      setIsLoading(true);
+      setAddress(newAddress);
+      
+
+      const geocodeResult = await Location.geocodeAsync(newAddress);
+      
+      if (geocodeResult.length > 0) {
+        const { latitude, longitude } = geocodeResult[0];
+        
+
+        setLocation({
+          coords: {
+            latitude,
+            longitude,
+            altitude: null,
+            accuracy: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null
+          },
+          timestamp: Date.now()
+        });
+        
+        await getAirQuality(latitude, longitude);
+        setErrorMsg(null);
+      } else {
+        setErrorMsg('Location not found');
+      }
+    } catch (error) {
+      console.error('Error updating location:', error);
+      setErrorMsg('Error finding location');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLocationChange = useCallback((text: string) => {
+    setAddress(text);
+    
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    if (text.length > 2) {
+      const timeout = setTimeout(() => {
+        updateLocation(text);
+      }, 1000); 
+      
+      setTypingTimeout(timeout);
+    }
+  }, [typingTimeout]);
 
   useEffect(() => {
     (async () => {
@@ -84,8 +149,8 @@ export default function Home() {
       
       if (status !== 'granted') {
         console.log('Location permission denied');
-        setErrorMsg('Permission to access location was denied');
-        setAddress('Location access denied');
+        setErrorMsg('Permission to access location was denied'); 
+        setAddress('Location access denied'); 
         return;
       }
 
@@ -93,8 +158,7 @@ export default function Home() {
         console.log('Getting current position...');
         let location = await Location.getCurrentPositionAsync({});
         console.log('Location received:', location);
-        setLocation(location);
-        
+        setLocation(location); 
         console.log('Getting address...');
         let reverseGeocode = await Location.reverseGeocodeAsync({
           latitude: location.coords.latitude,
@@ -159,7 +223,7 @@ export default function Home() {
           />
           <Card.Content>
             <Text style={styles.recommendationText}>
-              {getHealthRecommendation(airQuality)}
+              {getHealthRecommendation(airQuality) || "Loading recommendations... "}
             </Text>
           </Card.Content>
         </Card>
@@ -183,8 +247,13 @@ export default function Home() {
             <TextInput
               style={styles.input}
               value={address}
-              onChangeText={setAddress}
+              onChangeText={handleLocationChange}
+              placeholder="Enter location"
+              onSubmitEditing={() => updateLocation(address)}
             />
+            {isLoading && (
+              <Text style={styles.loadingText}>Updating location...</Text>
+            )}
           </Card.Content>
         </Card>
       </ScrollView>
@@ -299,5 +368,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#2196F3',
+  },
+  loadingText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

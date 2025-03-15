@@ -2,11 +2,11 @@
 
 ## **About the Application**
 
-Vayura is a personal side project I developed to deepen my understanding of APIs and enhance my programming skills on my journey to becoming a software developer.
+Vayura is my own project which I developed to learn about APIs usage and about building SaaS applications.
 
-The name **Vayura** is inspired by _Vayu_, the Indian god of air, reflecting the app’s focus on air quality and well-being.
+The name **Vayura** is inspired by _Vayu_, the Indian god of air which is spot-on name for this application.
 
-As a young adult, I am deeply concerned about the impact of air pollution on our health. Without clean air, maintaining good health is impossible. That’s why I created **Vayura**—an application that provides **real-time air quality data** using the **Open-Meteo API**.
+The application delivers **real-time air quality data** using the **Open-Meteo API**.
 
 Additionally, Vayura suggests **actionable steps** you can take to reduce the effects of poor air quality on your health.
 
@@ -18,7 +18,7 @@ To run Vayura on your device, follow these steps:
 
 Open your terminal and run:
 
-`git clone https://github.com/tygrysgracz/vayura.git`
+`git clone https://github.com/your-username/vayura.git`
 
 ### **2. Navigate to the Project Directory**
 
@@ -54,8 +54,4 @@ Once started, scan the QR code with the **Expo Go** app (available on iOS and An
 
 ## **Feedback & Support**
 
-I’d love to hear your thoughts! If you encounter any issues or have feedback, feel free to reach out. Enjoy exploring **Vayura** and breathe smarter! 🌿💨
-
----
-
-Let me know if you’d like any further refinements! 😊
+I know that this application isn't perfect, there are a lot of other application but It's just my first 100% build project, with everything that I could think of. I'm willing to learn how to create SaaS (Software as a service) applications.
