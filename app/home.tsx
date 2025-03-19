@@ -184,11 +184,7 @@ export default function Home() {
   }, []);
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-    >
+    <>
       <StatusBar style="light" />
       <Surface style={styles.header} elevation={4}>
         <Text style={styles.headerTitle}>Vayura</Text>
@@ -267,7 +263,7 @@ export default function Home() {
           Settings
         </Button>
       </View>
-    </KeyboardAvoidingView>
+    </>
   );
 }
 

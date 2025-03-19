@@ -46,8 +46,8 @@ export default function WelcomeScreen() {
           <Text style={styles.welcomeText}>Welcome to Vayura.</Text>
         </View>
         <View style={styles.aboutVayura}>
-          <Button onPress={toggleAboutVisibility} style={styles.aboutButton}>About Vayura</Button>
-          <Button onPress={handleGetStarted} style={styles.aboutButton}>Get Started</Button>
+          <Button onPress={toggleAboutVisibility} style={styles.aboutButton}><Text>About Vayura</Text></Button>
+          <Button onPress={handleGetStarted} style={styles.aboutButton}><Text>Get Started</Text></Button>
         </View>
       </View>
     </>
