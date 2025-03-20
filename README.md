@@ -18,7 +18,7 @@ To run Vayura on your device, follow these steps:
 
 Open your terminal and run:
 
-`git clone https://github.com/your-username/vayura.git`
+`git clone https://github.com/TygrysGracz/vayura.git`
 
 ### **2. Navigate to the Project Directory**
 
