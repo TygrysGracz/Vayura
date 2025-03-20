@@ -1,46 +1,118 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Card, Button } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Switch, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { Card, Button, IconButton, Surface } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import * as Notifications from 'expo-notifications';
 
 export default function Settings() {
+    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-    const clearAsyncStorage = async () => {
-        try {
-            await AsyncStorage.removeItem('hasLaunched');
-            router.replace('/');
-        } catch (error) {
-            console.error('Error clearing storage:', error);
+    // Request notification permissions
+    const requestNotificationPermissions = async () => {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
         }
-    }
+        
+        if (finalStatus !== 'granted') {
+            Alert.alert('Notifications Disabled', 'You will not receive air quality change notifications.');
+            setNotificationsEnabled(false);
+            return false;
+        }
+        
+        return true;
+    };
+
+    // Toggle notifications
+    const toggleNotifications = async (value: boolean) => {
+        if (value) {
+            const permissionGranted = await requestNotificationPermissions();
+            if (permissionGranted) {
+                setNotificationsEnabled(true);
+                await AsyncStorage.setItem('notificationsEnabled', 'true');
+            }
+        } else {
+            setNotificationsEnabled(false);
+            await AsyncStorage.setItem('notificationsEnabled', 'false');
+        }
+    };
+
+    // Load notification preferences
+    useEffect(() => {
+        const loadNotificationPreferences = async () => {
+            try {
+                const savedPreference = await AsyncStorage.getItem('notificationsEnabled');
+                if (savedPreference === 'true') {
+                    const permissionGranted = await requestNotificationPermissions();
+                    setNotificationsEnabled(permissionGranted);
+                }
+            } catch (error) {
+                console.error('Error loading notification preferences:', error);
+            }
+        };
+        
+        loadNotificationPreferences();
+    }, []);
 
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
-            <View style={styles.header}>
+            <Surface style={styles.header} elevation={4}>
+                <IconButton 
+                    icon="arrow-left" 
+                    size={24} 
+                    onPress={() => router.back()} 
+                    iconColor="white"
+                />
                 <Text style={styles.headerTitle}>Settings</Text>
-            </View>
-            <View style={styles.content}>
-                <Button
-                    mode="contained"
-                    onPress={clearAsyncStorage}
-                    style={styles.button}
-                >
-                    Clear Data
-                </Button>
-            </View>
-            <View style={styles.buttonContainer}>
-                <Button 
-                    mode="contained" 
-                    onPress={() => router.push('/home')}
-                    style={styles.button}
-                >
-                    Back to Home
-                </Button>
-            </View>
+            </Surface>
+            
+            <ScrollView style={styles.content}>
+                <Card style={styles.card}>
+                    <Card.Title
+                        title="Notifications"
+                        left={(props) => <IconButton {...props} icon="bell" />}
+                        titleStyle={styles.cardTitle}
+                    />
+                    <Card.Content>
+                        <View style={styles.notificationContainer}>
+                            <Text style={styles.notificationText}>
+                                Receive alerts when air quality changes
+                            </Text>
+                            <Switch
+                                value={notificationsEnabled}
+                                onValueChange={toggleNotifications}
+                                trackColor={{ false: '#767577', true: '#81b0ff' }}
+                                thumbColor={notificationsEnabled ? '#2196F3' : '#f4f3f4'}
+                            />
+                        </View>
+                        <Text style={styles.notificationDescription}>
+                            You'll be notified when air quality significantly changes in your selected location.
+                        </Text>
+                    </Card.Content>
+                </Card>
+                
+                <Card style={styles.card}>
+                    <Card.Title
+                        title="About Vayura"
+                        left={(props) => <IconButton {...props} icon="information" />}
+                        titleStyle={styles.cardTitle}
+                    />
+                    <Card.Content>
+                        <Text style={styles.aboutText}>
+                            Vayura is a personal air quality monitoring app that helps you breathe smarter and live cleaner.
+                        </Text>
+                        <Text style={styles.versionText}>
+                            Version 1.0.0
+                        </Text>
+                    </Card.Content>
+                </Card>
+            </ScrollView>
         </View>
     );
 }
@@ -51,37 +123,57 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
     },
     header: {
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: 20,
         paddingTop: 60,
         backgroundColor: '#2196F3',
     },
     headerTitle: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
         color: 'white',
+        marginLeft: 16,
     },
     content: {
         flex: 1,
-        padding: 20,
-        marginTop: 20,
-        shadowColor: 'grey',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        padding: 16,
     },
-    text: {
+    card: {
+        marginBottom: 16,
+        elevation: 2,
+    },
+    cardTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#2196F3',
+    },
+    notificationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+    },
+    notificationText: {
         fontSize: 16,
         color: '#333',
+        flex: 1,
     },
-    buttonContainer: {
-        padding: 16,
-        backgroundColor: 'white',
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
+    notificationDescription: {
+        fontSize: 14,
+        color: '#666',
+        fontStyle: 'italic',
+        marginTop: 8,
     },
-    button: {
-        width: '100%',
-        backgroundColor: '#2196F3',
+    aboutText: {
+        fontSize: 16,
+        lineHeight: 24,
+        color: '#333',
+        marginBottom: 8,
+    },
+    versionText: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 16,
     },
 });
